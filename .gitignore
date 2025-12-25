@@ -1,0 +1,68 @@
+# ================================
+# GITIGNORE - ARQUIVOS DE SEGURANÇA
+# ================================
+
+# Arquivos de ambiente (credenciais sensíveis)
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+
+# Configurações sensíveis
+config/supabase.config.js
+config/*.secret.js
+config/credentials.json
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependências
+node_modules/
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Cache e builds
+.cache/
+dist/
+build/
+.nuxt/
+.output/
+.vite/
+
+# Arquivos do sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Backups e temporários
+*.bak
+*.tmp
+*.temp
+backup/
+temp/
+
+# Arquivos específicos do projeto
+audio-uploads/
+user-data/
+session-logs/

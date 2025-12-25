@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luiz Henrique Goulart - Digital Contact</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #a855f7;
+      --accent: #ec4899;
+      --background: #0f172a;
+      --surface: rgba(30, 41, 59, 0.7);
+      --surface-light: rgba(51, 65, 85, 0.5);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.1);
+      --glass: rgba(15, 23, 42, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Aurora Background Animation */
+    .aurora-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      overflow: hidden;
+      background: var(--background);
+    }
+
+    .aurora-blob {
+      position: absolute;
+      filter: blur(80px);
+      opacity: 0.6;
+      border-radius: 50%;
+      animation: float 20s infinite alternate;
+    }
+
+    .blob-1 {
+      top: -10%;
+      left: -10%;
+      width: 50vw;
+      height: 50vw;
+      background: var(--primary);
+      animation-delay: 0s;
+    }
+
+    .blob-2 {
+      bottom: -10%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      background: var(--secondary);
+      animation-delay: -5s;
+    }
+
+    .blob-3 {
+      top: 40%;
+      left: 40%;
+      width: 40vw;
+      height: 40vw;
+      background: var(--accent);
+      animation-delay: -10s;
+      opacity: 0.4;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(30px, 50px) scale(1.1);
+      }
+    }
+
+    /* Main Container */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      max-height: 900px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (min-width: 500px) {
+      .app-container {
+        height: 90vh;
+        border-radius: 32px;
+        overflow: hidden;
+      }
+    }
+
+    /* Header */
+    .chat-header {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(15, 23, 42, 0.8);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    .avatar-container {
+      position: relative;
+    }
+
+    .user-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .status-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 12px;
+      height: 12px;
+      background: #22c55e;
+      border: 2px solid var(--background);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+    }
+
+    .header-info h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .header-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .verified-badge {
+      color: #3b82f6;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      scroll-behavior: smooth;
+    }
+
+    .chat-area::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-area::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .message-group {
+      display: flex;
+      gap: 1rem;
+      animation: slideUp 0.4s ease forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .message-group.user {
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      margin-top: auto;
+    }
+
+    .msg-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .msg-content {
+      max-width: 80%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .bubble {
+      padding: 1rem;
+      border-radius: 20px;
+      border-bottom-left-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .user .bubble {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 20px;
+      border-bottom-right-radius: 4px;
+      color: white;
+    }
+
+    .timestamp {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .user .timestamp {
+      text-align: right;
+    }
+
+    /* Quick Actions / Chips */
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      padding: 0.6rem 1rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .chip svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.8;
+    }
+
+    /* Input Area */
+    .input-area {
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.9);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+
+    .input-container {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.5rem;
+      padding-left: 1.2rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      transition: border-color 0.3s ease;
+    }
+
+    .input-container:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      padding: 0.5rem 0;
+    }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .send-btn svg {
+      width: 20px;
+      height: 20px;
+      margin-left: 2px;
+      /* Optical adjustment */
+    }
+
+    /* Typing Indicator */
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 0.5rem 0;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .dot:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0);
+      }
+
+      40% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Social Links Grid */
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+      width: 100%;
+    }
+
+    .social-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    .social-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-3px);
+      border-color: var(--primary);
+    }
+
+    .social-card svg {
+      width: 24px;
+      height: 24px;
+      color: var(--primary);
+    }
+
+    .social-card span {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background Animation -->
+  <div class="aurora-bg">
+    <div class="aurora-blob blob-1"></div>
+    <div class="aurora-blob blob-2"></div>
+    <div class="aurora-blob blob-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="avatar-container">
+        <div class="user-avatar">
+          <img src="public/luiz-photo.jpg" alt="Luiz Henrique">
+        </div>
+        <div class="status-dot"></div>
+      </div>
+      <div class="header-info">
+        <h1>Luiz Henrique Goulart
+          <svg class="verified-badge" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+          </svg>
+        </h1>
+        <p>Online agora • Desenvolvedor</p>
+      </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main class="chat-area" id="chatArea">
+      <!-- Initial Bot Message -->
+      <div class="message-group">
+        <div class="msg-avatar">
+          <img src="public/luiz-photo.jpg" alt="Bot">
+        </div>
+        <div class="msg-content">
+          <div class="bubble">
+            Olá! 👋 Bem-vindo ao meu cartão digital. Sou o Luiz, desenvolvedor apaixonado por criar soluções incríveis.
+          </div>
+          <div class="bubble">
+            Como posso te ajudar hoje? Selecione uma opção abaixo:
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <button class="chip" onclick="handleQuickReply('sobre')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              Sobre mim
+            </button>
+            <button class="chip" onclick="handleQuickReply('projetos')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              Projetos
+            </button>
+            <button class="chip" onclick="handleQuickReply('contato')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                </path>
+              </svg>
+              Contato
+            </button>
+          </div>
+          <span class="timestamp">Agora</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Input Area -->
+    <footer class="input-area">
+      <div class="input-container">
+        <input type="text" id="userInput" class="chat-input" placeholder="Digite uma mensagem..." autocomplete="off">
+        <button class="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const chatArea = document.getElementById('chatArea');
+    const userInput = document.getElementById('userInput');
+    let isTyping = false;
+    const N8N_WEBHOOK_URL = 'https://webhook.lovebagbrasil.com.br/webhook/d18a3fad-af4d-4e19-9a57-e0cb5fad98da';
+
+    // Auto-scroll to bottom
+    function scrollToBottom() {
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    // Handle Enter key
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Add User Message
+    function addUserMessage(text) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message-group user';
+      msgDiv.innerHTML = `
+        <div class="msg-content">
+          <div class="bubble">${text}</div>
+          <span class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+      `;
+      chatArea.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    // Add Bot Message
+    function addBotMessage(content, isHTML = false) {
+      // Remove existing typing indicator if any
+      const existingTyping = document.querySelector('.typing-indicator-group');
+      if (existingTyping) existingTyping.remove();
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message-group';
+      msgDiv.innerHTML = `
+        <div class="msg-avatar">
+          <img src="public/luiz-photo.jpg" alt="Bot">
+        </div>
+        <div class="msg-content">
+          ${isHTML ? content : `<div class="bubble">${content}</div>`}
+          <span class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+      `;
+      chatArea.appendChild(msgDiv);
+      scrollToBottom();
+      isTyping = false;
+    }
+
+    // Show Typing Indicator
+    function showTyping() {
+      if (isTyping) return;
+      isTyping = true;
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message-group typing-indicator-group';
+      msgDiv.innerHTML = `
+        <div class="msg-avatar">
+          <img src="public/luiz-photo.jpg" alt="Bot">
+        </div>
+        <div class="msg-content">
+          <div class="bubble typing">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
+      `;
+      chatArea.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    // Generate or retrieve Session ID
+    function getSessionId() {
+      let sessionId = localStorage.getItem('chat_session_id');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem('chat_session_id', sessionId);
+      }
+      return sessionId;
+    }
+
+    // Process Message Logic
+    async function processMessage(text) {
+      showTyping();
+
+      try {
+        const payload = {
+          message: text,
+          sessionId: getSessionId(),
+          timestamp: new Date().toISOString()
+        };
+
+        const response = await fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        // Handle array response from n8n (e.g. [{ "output": "..." }])
+        const responseObj = Array.isArray(data) ? data[0] : data;
+
+        // Adjust this based on your actual n8n output structure
+        const botResponse = responseObj.output || responseObj.text || responseObj.message || "Desculpe, não entendi a resposta do servidor.";
+
+        addBotMessage(botResponse, true);
+
+      } catch (error) {
+        console.error('Error:', error);
+        addBotMessage(`
+          <div class="bubble" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5);">
+            Desculpe, tive um problema para conectar com meu cérebro agora. 🧠💥
+            <br><br>
+            <strong>Erro técnico:</strong> ${error.message}
+            <br><br>
+            Por favor, tente novamente mais tarde ou me chame no WhatsApp.
+          </div>
+          <div class="quick-actions">
+             <button class="chip" onclick="window.open('https://wa.me/5517996102790', '_blank')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              Chamar no Whats
+            </button>
+          </div>
+        `, true);
+      }
+    }
+
+    function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      addUserMessage(text);
+      userInput.value = '';
+      processMessage(text);
+    }
+
+    function handleQuickReply(type) {
+      let text = '';
+      switch (type) {
+        case 'sobre': text = 'Gostaria de saber mais sobre você.'; break;
+        case 'projetos': text = 'Quais são seus projetos?'; break;
+        case 'contato': text = 'Como posso entrar em contato?'; break;
+      }
+      addUserMessage(text);
+      processMessage(text);
+    }
+  </script>
+</body>
+
+</html>
