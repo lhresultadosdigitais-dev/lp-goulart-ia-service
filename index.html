@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
   <title>Luiz Henrique Goulart - Digital Contact</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,6 +36,7 @@
       background-color: var(--background);
       color: var(--text);
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -106,6 +107,7 @@
       width: 100%;
       max-width: 480px;
       height: 100vh;
+      height: 100dvh;
       max-height: 900px;
       background: var(--glass);
       backdrop-filter: blur(20px);
@@ -711,6 +713,26 @@
       }
       addUserMessage(text);
       processMessage(text);
+    }
+
+    // Fix for mobile keyboard resizing
+    if (window.visualViewport) {
+      const appContainer = document.querySelector('.app-container');
+
+      const resizeHandler = () => {
+        // Only apply on mobile-ish screens where we want full height
+        if (window.innerWidth <= 500) {
+          appContainer.style.height = `${window.visualViewport.height}px`;
+          // Scroll to bottom after resize (keyboard open) to keep context
+          setTimeout(scrollToBottom, 100);
+        } else {
+          appContainer.style.height = ''; // Reset to CSS rules
+        }
+      };
+
+      window.visualViewport.addEventListener('resize', resizeHandler);
+      // Also call on load to set initial correct size if needed
+      resizeHandler();
     }
   </script>
 </body>
