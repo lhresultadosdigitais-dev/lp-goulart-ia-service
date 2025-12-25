@@ -556,13 +556,22 @@
       if (e.key === 'Enter') sendMessage();
     });
 
+    // Convert URLs to clickable links
+    function linkify(text) {
+      if (!text) return '';
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 500;">${url}</a>`;
+      });
+    }
+
     // Add User Message
     function addUserMessage(text) {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'message-group user';
       msgDiv.innerHTML = `
         <div class="msg-content">
-          <div class="bubble">${text}</div>
+          <div class="bubble">${linkify(text)}</div>
           <span class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
       `;
@@ -653,9 +662,15 @@
         const responseObj = Array.isArray(data) ? data[0] : data;
 
         // Adjust this based on your actual n8n output structure
-        const botResponse = responseObj.output || responseObj.text || responseObj.message || "Desculpe, não entendi a resposta do servidor.";
+        const botRaw = responseObj.output || responseObj.text || responseObj.message || "Desculpe, não entendi a resposta do servidor.";
 
-        addBotMessage(botResponse, true);
+        // If response doesn't start with a tag, assume it's text and wrap/linkify it
+        let finalContent = botRaw;
+        if (typeof botRaw === 'string' && !botRaw.trim().startsWith('<')) {
+          finalContent = `<div class="bubble">${linkify(botRaw)}</div>`;
+        }
+
+        addBotMessage(finalContent, true);
 
       } catch (error) {
         console.error('Error:', error);
